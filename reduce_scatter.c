@@ -9,7 +9,6 @@ int rank;
 int tasks;
 MPI_Comm comm;
 
-
 int main(int argc, char **argv)
 {
     MPI_Init(&argc, &argv);
@@ -31,6 +30,7 @@ int main(int argc, char **argv)
     printf("Coordinates for process %d: (%d, %d)\n", rank, coords[0], coords[1]);
 
     int arr_result[ARRLEN];
+    int local_max;
     int other_coords[2];
     int other_rank = 0;
     MPI_Status status;
@@ -128,50 +128,137 @@ int main(int argc, char **argv)
     MPI_Barrier(comm);
 
     // шаг 5
-    other_coords[0] = coords[0];
-    if (coords[0] == 1 || coords[0] == 2) {
-        if (coords[1] == 0 || coords[1] == 3) {
-            if (coords[1] == 0) {
-                other_coords[1] = coords[1] + 1;
-            }
-            if (coords[1] == 3) {
-                other_coords[1] = coords[1] - 1;
-            }
-            MPI_Cart_rank(comm, other_coords, &other_rank);
-            MPI_Recv(arr, ARRLEN, MPI_INT, other_rank, 0, comm, &status);
-
-        } else {
-            if (coords[1] == 1) {
-                other_coords[1] = coords[1] - 1;
-            }
-            if (coords[1] == 2) {
-                other_coords[1] = coords[1] + 1;
-            }
-            MPI_Cart_rank(comm, other_coords, &other_rank);
-            MPI_Send(arr, ARRLEN, MPI_INT, other_rank, 0, comm);
-        }
-    }
-    MPI_Barrier(comm);
-
-    // шаг 6
-    other_coords[1] = coords[1];
-    if (coords[0] == 0 || coords[0] == 3) {
-        if (coords[0] == 0) {
-            other_coords[0] = coords[0] + 1;
-        } else {
-            other_coords[0] = coords[0] - 1;
-        }
+    if (coords[0] == 1 && coords[1] == 1) {
+        other_coords[0] = 0;
+        other_coords[1] = 1;
         MPI_Cart_rank(comm, other_coords, &other_rank);
-        MPI_Recv(arr, ARRLEN, MPI_INT, other_rank, 0, comm, &status);
-    } else {
-        if (coords[0] == 1) {
-            other_coords[0] = coords[0] - 1;
-        } else {
-            other_coords[0] = coords[0] + 1;
-        }
+        MPI_Send(arr, ARRLEN, MPI_INT, other_rank, 0, comm);
+        other_coords[0] = 1;
+        other_coords[1] = 0;
         MPI_Cart_rank(comm, other_coords, &other_rank);
         MPI_Send(arr, ARRLEN, MPI_INT, other_rank, 0, comm);
     }
+
+    if ((coords[0] == 1 && coords[1] == 0) || (coords[0] == 0 && coords[1] == 1)) {
+        other_coords[0] = 1;
+        other_coords[1] = 1;
+        MPI_Cart_rank(comm, other_coords, &other_rank);
+        MPI_Recv(arr, ARRLEN, MPI_INT, other_rank, 0, comm, &status);
+    }
+
+    if (coords[0] == 1 && coords[1] == 2) {
+        other_coords[0] = 0;
+        other_coords[1] = 2;
+        MPI_Cart_rank(comm, other_coords, &other_rank);
+        MPI_Send(arr, ARRLEN, MPI_INT, other_rank, 0, comm);
+        other_coords[0] = 1;
+        other_coords[1] = 3;
+        MPI_Cart_rank(comm, other_coords, &other_rank);
+        MPI_Send(arr, ARRLEN, MPI_INT, other_rank, 0, comm);
+    }
+
+    if ((coords[0] == 1 && coords[1] == 3) || (coords[0] == 0 && coords[1] == 2)) {
+        other_coords[0] = 1;
+        other_coords[1] = 2;
+        MPI_Cart_rank(comm, other_coords, &other_rank);
+        MPI_Recv(arr, ARRLEN, MPI_INT, other_rank, 0, comm, &status);
+    }
+
+    if (coords[0] == 2 && coords[1] == 1) {
+        other_coords[0] = 2;
+        other_coords[1] = 0;
+        MPI_Cart_rank(comm, other_coords, &other_rank);
+        MPI_Send(arr, ARRLEN, MPI_INT, other_rank, 0, comm);
+        other_coords[0] = 3;
+        other_coords[1] = 1;
+        MPI_Cart_rank(comm, other_coords, &other_rank);
+        MPI_Send(arr, ARRLEN, MPI_INT, other_rank, 0, comm);
+    }
+
+    if ((coords[0] == 2 && coords[1] == 0) || (coords[0] == 3 && coords[1] == 1)) {
+        other_coords[0] = 2;
+        other_coords[1] = 1;
+        MPI_Cart_rank(comm, other_coords, &other_rank);
+        MPI_Recv(arr, ARRLEN, MPI_INT, other_rank, 0, comm, &status);
+    }
+
+    if (coords[0] == 2 && coords[1] == 2) {
+        other_coords[0] = 2;
+        other_coords[1] = 3;
+        MPI_Cart_rank(comm, other_coords, &other_rank);
+        MPI_Send(arr, ARRLEN, MPI_INT, other_rank, 0, comm);
+        other_coords[0] = 3;
+        other_coords[1] = 2;
+        MPI_Cart_rank(comm, other_coords, &other_rank);
+        MPI_Send(arr, ARRLEN, MPI_INT, other_rank, 0, comm);
+    }
+
+    if ((coords[0] == 2 && coords[1] == 3) || (coords[0] == 3 && coords[1] == 2)) {
+        other_coords[0] = 2;
+        other_coords[1] = 2;
+        MPI_Cart_rank(comm, other_coords, &other_rank);
+        MPI_Recv(arr, ARRLEN, MPI_INT, other_rank, 0, comm, &status);
+    }
+
+    MPI_Barrier(comm);
+
+    // шаг 6
+    if (coords[0] == 0 && coords[1] == 1) {
+        other_coords[0] = 0;
+        other_coords[1] = 0;
+        MPI_Cart_rank(comm, other_coords, &other_rank);
+        MPI_Send(arr, ARRLEN, MPI_INT, other_rank, 0, comm);
+    }
+
+    if (coords[0] == 0 && coords[1] == 0) {
+        other_coords[0] = 0;
+        other_coords[1] = 1;
+        MPI_Cart_rank(comm, other_coords, &other_rank);
+        MPI_Recv(arr, ARRLEN, MPI_INT, other_rank, 0, comm, &status);
+    }
+
+    if (coords[0] == 0 && coords[1] == 2) {
+        other_coords[0] = 0;
+        other_coords[1] = 3;
+        MPI_Cart_rank(comm, other_coords, &other_rank);
+        MPI_Send(arr, ARRLEN, MPI_INT, other_rank, 0, comm);
+    }
+
+    if (coords[0] == 0 && coords[1] == 3) {
+        other_coords[0] = 0;
+        other_coords[1] = 2;
+        MPI_Cart_rank(comm, other_coords, &other_rank);
+        MPI_Recv(arr, ARRLEN, MPI_INT, other_rank, 0, comm, &status);
+    }
+
+    if (coords[0] == 3 && coords[1] == 1) {
+        other_coords[0] = 3;
+        other_coords[1] = 0;
+        MPI_Cart_rank(comm, other_coords, &other_rank);
+        MPI_Send(arr, ARRLEN, MPI_INT, other_rank, 0, comm);
+    }
+
+    if (coords[0] == 3 && coords[1] == 0) {
+        other_coords[0] = 3;
+        other_coords[1] = 1;
+        MPI_Cart_rank(comm, other_coords, &other_rank);
+        MPI_Recv(arr, ARRLEN, MPI_INT, other_rank, 0, comm, &status);
+    }
+
+    if (coords[0] == 3 && coords[1] == 2) {
+        other_coords[0] = 3;
+        other_coords[1] = 3;
+        MPI_Cart_rank(comm, other_coords, &other_rank);
+        MPI_Send(arr, ARRLEN, MPI_INT, other_rank, 0, comm);
+    }
+
+    if (coords[0] == 3 && coords[1] == 3) {
+        other_coords[0] = 3;
+        other_coords[1] = 2;
+        MPI_Cart_rank(comm, other_coords, &other_rank);
+        MPI_Recv(arr, ARRLEN, MPI_INT, other_rank, 0, comm, &status);
+    }
+
     MPI_Barrier(comm);
 
     // вывод результата
