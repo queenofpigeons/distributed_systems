@@ -246,12 +246,6 @@ gauss(double **matrix, int n)
                 }
             }
 
-            if(rank == 4 && i == 0 && row == 0) {
-                printf("Killing process 4");
-                fflush(stdout);
-                raise(SIGKILL);
-            }
-
             if (!err_happens)
                 MPI_Barrier(main_comm);
 
