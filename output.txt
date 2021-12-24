@@ -1,0 +1,14 @@
+Killing process 4Rank 2 / 5: Notified of error MPI_ERR_PROC_FAILED: Process Failure. 1 found dead: { 4 }
+Rank 0 / 5: Notified of error MPI_ERR_PROC_FAILED: Process Failure. 1 found dead: { 4 }
+Rank 3 / 5: Notified of error MPI_ERR_PROC_FAILED: Process Failure. 1 found dead: { 4 }
+Rank 1 / 5: Notified of error MPI_ERR_PROC_FAILED: Process Failure. 1 found dead: { 4 }
+Proc 0 loaded checkpoint
+Proc 2 loaded checkpoint
+Proc 1 loaded checkpoint
+Proc 3 loaded checkpoint
+
+=========================
+Calculation time is 0.012851
+=========================
+
+Determinant of your matrix is 0.000
